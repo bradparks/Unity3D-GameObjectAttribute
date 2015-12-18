@@ -61,6 +61,7 @@ public static class GOAExtensions {
     private const string NO_WRITE_ERROR = "GameObject Finder: Unable to write {0} on {1}, disabling {2}";
 
     public static void FindGameObjects( this MonoBehaviour behaviour ) {
+        var bGameObject = behaviour.gameObject;
         var bType = behaviour.GetType();
         var cType = typeof( GameObjectAttribute );
         List<MemberInfo> members;
@@ -80,18 +81,18 @@ public static class GOAExtensions {
             var gameObject = GameObject.Find( attribute.Name );
             if ( gameObject == null ) {
                 if ( attribute.DisableComponentOnError ) {
-                    Debug.LogErrorFormat( behaviour, MISSING_ERROR, attribute.Name, behaviour.name, behaviour.gameObject.name );
+                    Debug.LogErrorFormat( bGameObject, MISSING_ERROR, attribute.Name, bType.Name, bGameObject.name );
                 } else {
-                    Debug.LogWarningFormat( behaviour, MISSING, attribute.Name );
+                    Debug.LogWarningFormat( bGameObject, MISSING, attribute.Name );
                 }
             } else {
                 if ( item.CanWrite() ) {
                     item.SetValue( behaviour, gameObject );
                 } else {
                     if ( attribute.DisableComponentOnError ) {
-                        Debug.LogErrorFormat( behaviour, NO_WRITE_ERROR, item.Name, behaviour.name, behaviour.gameObject.name );
+                        Debug.LogErrorFormat( bGameObject, NO_WRITE_ERROR, item.Name, bType.Name, bGameObject.name );
                     } else {
-                        Debug.LogWarningFormat( behaviour, NO_WRITE, item.Name, behaviour.name );
+                        Debug.LogWarningFormat( bGameObject, NO_WRITE, item.Name, bType.Name );
                     }
                 }
             }
