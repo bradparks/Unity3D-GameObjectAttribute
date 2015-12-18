@@ -27,25 +27,6 @@ namespace GOA {
             }
         }
 
-        public static bool CanRead( this MemberInfo info ) {
-            switch ( info.MemberType ) {
-                case MemberTypes.Field:
-                    return true;
-                case MemberTypes.Property:
-                    var p = ( info as PropertyInfo );
-                    return p.CanRead;
-                case MemberTypes.Constructor:
-                case MemberTypes.Method:
-                case MemberTypes.Event:
-                case MemberTypes.TypeInfo:
-                case MemberTypes.Custom:
-                case MemberTypes.NestedType:
-                case MemberTypes.All:
-                default:
-                    return false;
-            }
-        }
-
         public static void SetValue( this MemberInfo info, object obj, object value ) {
             switch ( info.MemberType ) {
                 case MemberTypes.Field:
@@ -89,6 +70,7 @@ public static class GOAExtensions {
         } else {
             members = bType.GetMembers( BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic )
                 .Where( m => m.GetCustomAttributes( cType, true ).Length == 1 ).ToList();
+            members.OrderBy( m => m.MemberType ).ThenBy( m => m.Name );
             typeMembers.Add( bType, members );
         }
 
