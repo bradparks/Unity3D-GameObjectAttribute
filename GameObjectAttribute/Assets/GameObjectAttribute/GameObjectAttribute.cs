@@ -27,6 +27,30 @@ namespace GOA {
             }
         }
 
+        public static Type GetMemberType( this MemberInfo info ) {
+            switch ( info.MemberType ) {
+                case MemberTypes.Event:
+                    var e = info as EventInfo;
+                    return e.EventHandlerType;
+                case MemberTypes.Field:
+                    var f = info as FieldInfo;
+                    return f.FieldType;
+                case MemberTypes.Method:
+                    var m = info as MethodInfo;
+                    return m.ReturnType;
+                case MemberTypes.Property:
+                    var p = info as PropertyInfo;
+                    return p.PropertyType;
+                case MemberTypes.Constructor:
+                case MemberTypes.TypeInfo:
+                case MemberTypes.Custom:
+                case MemberTypes.NestedType:
+                case MemberTypes.All:
+                default:
+                    return null;
+            }
+        }
+
         public static void SetValue( this MemberInfo info, object obj, object value ) {
             switch ( info.MemberType ) {
                 case MemberTypes.Field:
@@ -64,13 +88,17 @@ public static class GOAExtensions {
         var bGameObject = behaviour.gameObject;
         var bType = behaviour.GetType();
         var cType = typeof( GameObjectAttribute );
+        var gType = typeof( GameObject );
         List<MemberInfo> members;
 
         if ( typeMembers.ContainsKey( bType ) ) {
             members = typeMembers[bType];
         } else {
             members = bType.GetMembers( BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic )
-                .Where( m => m.GetCustomAttributes( cType, true ).Length == 1 ).ToList();
+                .Where( m =>
+                    m.GetMemberType() == gType
+                    && m.GetCustomAttributes( cType, true ).Length == 1 ).ToList();
+
             members.OrderBy( m => m.MemberType ).ThenBy( m => m.Name );
             typeMembers.Add( bType, members );
         }
