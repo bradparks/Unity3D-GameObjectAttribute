@@ -96,7 +96,8 @@ public static class GOAExtensions {
         } else {
             members = bType.GetMembers( BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic )
                 .Where( m =>
-                    m.GetMemberType() == gType
+                    ( m.MemberType == MemberTypes.Field || m.MemberType == MemberTypes.Property )
+                    && m.GetMemberType() == gType
                     && m.GetCustomAttributes( cType, true ).Length == 1 ).ToList();
 
             members.OrderBy( m => m.MemberType ).ThenBy( m => m.Name );
